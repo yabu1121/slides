@@ -1,0 +1,22 @@
+node_modules
+dist
+dist-*
+*.local
+.DS_Store
+slides-export*
+
+# フォントの配布物そのものは置いても良いが、再配布不可のものは除く
+# fonts-stock/**/*.ttf
+# fonts-stock/**/*.otf
+
+# フリーイラスト素材。再配布禁止のものが多いのでコミットしない
+public/illust/*
+!public/illust/README.md
+.thumbs-tmp
+
+# 鍵の類。.env.example だけは残す
+.env*
+!.env.example
+
+# Vercel の紐付け
+.vercel

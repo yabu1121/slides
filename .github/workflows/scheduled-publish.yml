@@ -1,0 +1,39 @@
+# 予約公開のためにサイトを作り直す。
+#
+# 公開ページは静的ビルドの結果なので、publish_at の時刻が来ても誰かが
+# 再ビルドを起こさないと出ない。1 時間ごとに Deploy Hook を叩いて作り直す。
+#
+# **精度はこの間隔ぶん粗くなる**（最大 1 時間遅れる）。細かくしたいなら
+# cron を 15 分などに縮める。ビルドは 1 回 1 分程度。
+#
+# 必要な secret（Settings → Secrets and variables → Actions）
+#   VERCEL_DEPLOY_HOOK_URL ... Vercel の slides プロジェクト → Settings → Git
+#                              → Deploy Hooks で作った URL。**URL 自体が鍵**
+name: scheduled-publish
+
+on:
+  schedule:
+    # UTC。毎時 5 分に実行する（毎時 0 分は混み合うのでずらす）
+    - cron: '5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: scheduled-publish
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Hook を叩く
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "VERCEL_DEPLOY_HOOK_URL が未設定です"
+            exit 1
+          fi
+          # URL は伏せる（ログに出ると鍵が漏れる）
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$HOOK")
+          echo "status: $code"
+          [ "$code" -lt 400 ]

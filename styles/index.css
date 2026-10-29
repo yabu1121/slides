@@ -1,0 +1,769 @@
+@import './fonts.css';
+
+/* ============================================================
+   Design tokens — すべての色・余白はここで決まる
+   新しい色を直接書かず、必ずこの変数を参照する
+   ============================================================ */
+:root {
+  /* 背景 */
+  --c-bg: #ffffff;
+  --c-surface: #f7f8fa;
+
+  /* 文字 */
+  --c-ink: #16191d;
+  --c-ink-2: #4b5563;
+  --c-ink-3: #8b949e;
+
+  /* 線 */
+  --c-border: #e4e7eb;
+  --c-border-strong: #cfd4da;
+
+  /*
+   * アクセント（1色だけ。増やさない）。名刺と同じ空色。
+   * --c-accent は面に塗る色。薄いので文字には使えない。
+   * 文字やリンクには --c-accent-ink を使う。
+   */
+  --c-accent: #5bc5e8;
+  --c-accent-ink: #1b7ea3;
+  --c-accent-soft: #e6f6fc;
+
+  /*
+   * 方眼紙の線。名刺の地と同じ。
+   * **本文より強くしない。** 文字の少ないページだと方眼が主役になる。
+   * 140px の濃い線は「ここに紙がある」と分かる最低限まで落としてある。
+   */
+  --c-grid: #f3f9fc;
+  --c-grid-strong: #e8f3f9;
+
+  /* アクセントの濃い方。表紙の図案のグラデーションに使う */
+  --c-accent-deep: #2aa4cd;
+
+  /* 分析セクションだけの配色。地は白ではなく ghost white、罫は lavender。
+     グラフの系列もここから取る（components/chart-theme.ts）。
+     濃い順に slate → sage → gray、差し色が green と violet。 */
+  --c-a-green: #00ff7f;
+  --c-a-sage: #8fbc8f;
+  --c-a-lavender: #e6e6fa;
+  --c-a-slate: #2f4f4f;
+  --c-a-violet: #8a2be2;
+  --c-a-gray: #696969;
+  --c-a-ghost: #f8f8ff;
+
+  /* 表紙の外周の帯。薄い空色のグラデーションにする */
+  --c-cover-band: #cbe9f5;
+
+  /* セマンティック（必要最小限） */
+  --c-positive: #15803d;
+  --c-positive-soft: #effaf3;
+  --c-caution: #b45309;
+  --c-caution-soft: #fff8ec;
+  --c-critical: #b91c1c;
+  --c-critical-soft: #fef2f2;
+
+  /* タイポグラフィ */
+  /*
+   * 本文。**英数字と日本語で書体を分けている。**
+   * 先頭の Space Grotesk がラテンと数字だけを拾い、
+   * 日本語は端末の Hiragino に落ちる。1 行の中で自動的に 2 書体になる。
+   * 数字が全部 Space Grotesk になるのがこの資料の見分け方。
+   */
+  --font-sans: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+
+  /*
+   * 見出し用。英数字は Space Grotesk 700、日本語は Murecho 900。
+   * **日本語だけ重い。** 和文を 900 まで上げ、英字は 700 で受ける。
+   * 同じ 1 行に重さの違う 2 書体が並ぶのが、この資料のいちばんの特徴。
+   * 軽くしたいときは M PLUS 2（800）に差し替える。実体は public/fonts/。
+   * 候補のストックは fonts-stock/README.md を参照。
+   */
+  --font-display: "Space Grotesk", "Murecho", "M PLUS 2",
+    -apple-system, "Hiragino Sans", sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Slidev 組み込み変数の上書き */
+  --slidev-theme-primary: var(--c-accent);
+  --slidev-code-background: var(--c-surface);
+  --slidev-code-radius: 0px;
+
+  color-scheme: light;
+}
+
+/* ============================================================
+   ベース — 白背景を全面に敷く
+   ============================================================ */
+html,
+body,
+#app,
+.slidev-page {
+  background: var(--c-bg);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--c-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "palt" 1;
+}
+
+/*
+ * 全スライドの地。白の上に方眼紙を敷く。名刺と同じ手触り。
+ * 線はごく薄いので本文や図の邪魔はしない。
+ * 表紙のように自分で地を塗るページは、この上から塗りつぶしてよい。
+ */
+.slidev-layout {
+  /* Illust を右端に置くための基準 */
+  position: relative;
+  background-color: var(--c-bg);
+  background-image:
+    linear-gradient(var(--c-grid-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-grid-strong) 1px, transparent 1px),
+    linear-gradient(var(--c-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-grid) 1px, transparent 1px);
+  background-size: 140px 140px, 140px 140px, 28px 28px, 28px 28px;
+  color: var(--c-ink);
+  font-size: 1.125rem; /* 18px。本文の基準 */
+  line-height: 1.75;
+  /*
+   * 和文の字間を開ける。**ここが一番「洗練」に効く。**
+   * 詰めると情報は詰まるが、安い資料の手触りになる。
+   */
+  letter-spacing: 0.04em;
+}
+
+/*
+ * 本文ページの縦の置き方。
+ *
+ * 見出しは上に固定したまま、残りの中身を見出しと下端のあいだで上下中央に置く。
+ * flex の auto マージンを 2 つ（見出しの下と ::after の上）置くと、
+ * 余った高さが半分ずつ分かれて、中身がその帯の真ん中に落ち着く。
+ *
+ * **これが無いと下 3〜4 割が常に空いたままになる。**
+ * 1 スライド 1 メッセージで作ると中身は上 6 割で終わるので、
+ * 上詰めのままだとどのページも作りかけに見える。
+ *
+ * 中身が多いページでは auto が 0 になり、いままでの上詰めに戻る。
+ * 見出しと中身の最小の間隔は margin ではなく padding で持つ。
+ * margin にすると auto に食われて、リード文の詰めも効かなくなる。
+ */
+.slidev-layout.default {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 中身は自然な高さのまま。flex に縮められると図の高さが狂う */
+.slidev-layout.default > * {
+  flex: none;
+}
+
+.slidev-layout.default > h1:first-child {
+  margin-bottom: auto;
+  padding-bottom: 1.5rem;
+}
+
+.slidev-layout.default::after {
+  content: '';
+  display: block;
+  margin-top: auto;
+}
+
+/* ============================================================
+   見出し
+   ============================================================ */
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3,
+.slidev-layout h4 {
+  color: var(--c-ink);
+  /* 和文は 900、英字は 700 が当たる。Space Grotesk に 900 が無いため */
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+/*
+ * h1 は 44px。36px だと和文 900 の重さが効かず、ただ太いだけに見える。
+ * 数字の u-36 とも大きさが被らなくなる。
+ */
+.slidev-layout h1 {
+  font-size: 2.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.slidev-layout h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.slidev-layout h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* h1 直下の段落はリード文として扱う */
+.slidev-layout h1 + p {
+  color: var(--c-ink-2);
+  opacity: 1;
+  font-size: 1rem; /* 16px */
+  margin-top: -0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ラベル見出し（h6）は小さな大文字キャプション */
+.slidev-layout h6 {
+  color: var(--c-ink-3);
+  opacity: 1 !important;
+  font-weight: 600;
+}
+
+/* ============================================================
+   本文要素
+   ============================================================ */
+.slidev-layout p,
+.slidev-layout li {
+  color: var(--c-ink);
+}
+
+.slidev-layout ul,
+.slidev-layout ol {
+  padding-left: 1.35em;
+}
+
+.slidev-layout li {
+  margin-block: 0.3em;
+}
+
+.slidev-layout li::marker {
+  color: var(--c-ink-3);
+}
+
+/* Slidev の既定は点線の下線。地味な実線の下線に差し替える */
+/*
+ * リンク。**下線を引かない。** 空色の文字だけでリンクだと分かる。
+ * Slidev の既定（layouts-base.css）が破線の下線を付けるので打ち消す。
+ */
+.slidev-layout a,
+.slidev-layout a:hover {
+  color: var(--c-accent-ink);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.slidev-layout strong {
+  font-weight: 700;
+  color: var(--c-ink);
+}
+
+.slidev-layout hr {
+  border-color: var(--c-border);
+  margin-block: 1.5rem;
+}
+
+/*
+ * 引用。**左に縦罫を引かない。** 字下げと墨の薄さだけで引用だと分かる。
+ * 色の付いた軸を立てると、そこだけ別の資料から貼ってきたように見える。
+ */
+.slidev-layout blockquote {
+  border: none;
+  background: transparent;
+  color: var(--c-ink-2);
+  padding: 0.1rem 0 0.1rem 2.2rem;
+}
+
+/* ============================================================
+   コード
+   ============================================================ */
+.slidev-layout code,
+.slidev-layout pre,
+.slidev-layout .slidev-code,
+.slidev-layout .font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+.slidev-layout code {
+  font-size: 0.92em;
+}
+
+/*
+ * 文中のコード。**囲わない。** 等幅の字面だけで本文と区別する。
+ * 灰色の角丸チップを敷くと、1 行の中に小さな箱がいくつも並ぶ。
+ * コードブロックを白地・直角にしたのと同じ理由。
+ */
+.slidev-layout :not(pre) > code {
+  background: transparent;
+  color: var(--c-ink);
+  padding: 0;
+}
+
+/*
+ * コードの地は薄い空色のベタ。白地のままだと方眼に紛れて範囲が分からない。
+ * 角丸にしない（--slidev-code-radius は 0）。枠線も引かない。
+ * 角を丸めて線で囲むと、方眼の上に箱が浮いて見える。
+ * 左にアクセントの罫を引くのもやらない。軸を立てると途端に安く見える。
+ * 直角のベタ 1 枚だけ。これは囲いではなくコードの地。
+ *
+ * 文字の太さは 600。500 は効かない。等幅フォントにその面が無く 400 のまま出る。
+ * 色は setup/shiki.ts、書体は --font-mono、大きさは --slidev-code-* で決まる。
+ */
+.slidev-layout pre,
+.slidev-layout .slidev-code {
+  background: var(--c-accent-soft) !important;
+  border: none;
+  border-radius: 0;
+  font-weight: 600;
+}
+
+/*
+ * レイアウトの左右 padding を打ち消して、画面いっぱいに広げる。
+ * -3.5rem は layouts-base.css の px-14 と同じ値。
+ * 見出しと下の一行は padding の内側に残すので、包んだ中身だけが外へ張り出す。
+ *
+ * 使うのは軸のある図だけ。グラフと、横に伸びるタイムライン。
+ * **軸の無い図には付けない。** 端まで広げると名前が切れそうに見える。
+ */
+.u-bleed {
+  margin-left: -3.5rem;
+  margin-right: -3.5rem;
+}
+
+/* ============================================================
+   分析セクション
+   スライドの frontmatter に `class: analysis` を書くと切り替わる。
+   地を ghost white にして、方眼を薄い緑に差し替える。緑を基調にする。
+   ============================================================ */
+.slidev-layout.analysis {
+  background-color: var(--c-a-ghost);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--c-a-sage) 45%, var(--c-a-ghost)) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--c-a-sage) 45%, var(--c-a-ghost)) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--c-a-sage) 22%, var(--c-a-ghost)) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--c-a-sage) 22%, var(--c-a-ghost)) 1px, transparent 1px);
+  color: var(--c-a-slate);
+}
+
+.slidev-layout.analysis h1,
+.slidev-layout.analysis h2,
+.slidev-layout.analysis h3 {
+  color: var(--c-a-slate);
+}
+
+/* グラフに高さを回すため、見出しの下の余白を詰める */
+.slidev-layout.analysis h1 {
+  margin-bottom: 0.4rem;
+}
+
+.slidev-layout.default.analysis > h1:first-child {
+  padding-bottom: 0.4rem;
+}
+
+.slidev-layout.analysis .u-label {
+  color: var(--c-a-violet);
+}
+
+.slidev-layout.analysis .u-muted {
+  color: var(--c-a-gray);
+}
+
+/* 薄字でも gray をそのまま使う。地に混ぜると 3:1 を切って読めなくなる */
+.slidev-layout.analysis .u-faint {
+  color: var(--c-a-gray);
+}
+
+/* ============================================================
+   テーブル
+   ============================================================ */
+/*
+ * 表。**罫を 1 本も引かない。** 行の区切りは余白で出す。
+ * 線で囲うと、そこだけ別の資料から貼ってきたように見える。
+ * 見出しは 12px の空色。本文より小さくして、読む順を下に送る。
+ */
+/*
+ * 幅は中身に合わせて縮める。画面いっぱいに広げない。
+ * 列が離れると目が横に走って、どの行の値なのかを追えなくなる。
+ * auto ではなく max-content。本文ページは flex なので、
+ * auto のままだと flex の stretch で画面幅いっぱいに伸びる。
+ * `:not(.cover)` はテーマ側の w-full を上回るためだけに付けている。
+ */
+.slidev-layout:not(.cover) table {
+  width: max-content;
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+.slidev-layout table {
+  border-collapse: collapse;
+}
+
+/*
+ * 行の下罫を消す。テーマ（layouts-base.css）が tr に border-b を付けていて、
+ * 方眼の線と二重になって、引かないと決めた罫が出ていた。
+ * 行の区切りは td の上下の余白だけで出す。
+ */
+.slidev-layout tr {
+  border: none;
+}
+
+.slidev-layout th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--c-accent-ink);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  padding: 0 2.5rem 0.9rem 0;
+  white-space: nowrap;
+}
+
+.slidev-layout td {
+  padding: 0.55rem 2.5rem 0.55rem 0;
+  vertical-align: top;
+}
+
+.slidev-layout th:last-child,
+.slidev-layout td:last-child {
+  padding-right: 0;
+}
+
+/* ============================================================
+   レイアウト別の調整
+   ============================================================ */
+/*
+ * 表紙。余白を自分で決めたいので、レイアウト側の padding を外して
+ * 全面を使えるようにする。中身は絶対配置で置く。
+ * Slidev が差し込む <div class="my-auto"> も高さいっぱいに伸ばす。
+ */
+.slidev-layout.cover {
+  background: var(--c-bg);
+  position: relative;
+  display: block;
+  padding: 0;
+}
+
+.slidev-layout.cover > div {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.slidev-layout.cover h1,
+.slidev-layout.intro h1 {
+  font-size: 3.25rem;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+/* 表紙のサブタイトル。h1 直下なのでリード文の規則が当たる */
+.slidev-layout.cover h1 + p {
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* 章扉。大見出しだけを画面の中央に置く */
+.slidev-layout.section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.slidev-layout.section h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.slidev-layout.statement h1,
+.slidev-layout.fact h1 {
+  letter-spacing: -0.03em;
+}
+
+.slidev-layout.quote {
+  background: var(--c-surface);
+}
+
+/* ============================================================
+   目次（<Toc /> の出力）
+   番号は CSS の counter で振る。slides.md 側には書かない
+   ============================================================ */
+.slidev-layout .slidev-toc {
+  color: var(--c-ink);
+  counter-reset: toc;
+}
+
+.slidev-layout .slidev-toc-list {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.slidev-layout .slidev-toc-list-level-1 > .slidev-toc-item {
+  counter-increment: toc;
+  position: relative;
+  padding: 0.45rem 0 0.45rem 2.6rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.slidev-layout .slidev-toc-list-level-1 > .slidev-toc-item::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.62rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-accent-ink);
+}
+
+/* 入れ子（h2 以下）は小さく薄く */
+.slidev-layout .slidev-toc-list-level-2 {
+  padding-left: 0;
+  margin-top: 0.3rem;
+}
+
+.slidev-layout .slidev-toc-list-level-2 > .slidev-toc-item {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--c-ink-2);
+  padding: 0.12rem 0;
+}
+
+/* Slidev の既定でリンクに点線が付くので消す */
+.slidev-layout .slidev-toc-item a {
+  color: inherit;
+  border-bottom: none;
+  text-decoration: none;
+}
+
+.slidev-layout .slidev-toc-item-active > a,
+.slidev-layout .slidev-toc-item-parent-active > a {
+  color: var(--c-accent-ink);
+}
+
+/* ============================================================
+   吹き出し
+   白地の上に濃い色で置き、コードより手前に出す。
+   コントラストで「今ここを見る」を作るので、薄い色にしない。
+   v-click と組むと、前の吹き出しが奥へ下がって薄く残る。
+   ============================================================ */
+.u-balloon {
+  position: relative;
+  background: var(--c-ink);
+  color: var(--c-bg);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow:
+    0 2px 6px rgba(20, 23, 26, 0.14),
+    0 18px 40px rgba(20, 23, 26, 0.22);
+}
+
+/* 中の補足は色を変えず、薄さだけで落とす */
+.u-balloon .u-12,
+.u-balloon .u-16 {
+  color: inherit;
+  opacity: 0.74;
+}
+
+/* 尻尾。左向きの三角 1 枚 */
+.u-balloon::after {
+  content: '';
+  position: absolute;
+  top: 1.9rem;
+  left: -13px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 13px 10px 0;
+  border-color: transparent var(--c-ink) transparent transparent;
+}
+
+/*
+ * 切り替えの動き。Slidev の既定 0.1s は速すぎる。
+ * コードの書き換え（0.7s）より少し遅らせて、吹き出しが後から据わるようにする。
+ */
+.u-balloon.slidev-vclick-target {
+  transition:
+    opacity 0.85s ease,
+    translate 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    scale 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: left center;
+}
+
+/* まだ出ていない吹き出し。右から入ってくる */
+.u-balloon.slidev-vclick-hidden {
+  translate: 18px 0;
+  scale: 0.96;
+}
+
+/* 今の吹き出し。一番手前 */
+.u-balloon.slidev-vclick-current {
+  z-index: 2;
+}
+
+/*
+ * 前の吹き出し。消さずに奥へ下げて薄く残す。
+ * 小さく・薄く・少し上にずらすことで、手前と奥の 2 枚に見える。
+ */
+.u-balloon.slidev-vclick-prior {
+  z-index: 1;
+  opacity: 0.3;
+  translate: -14px -22px;
+  scale: 0.92;
+}
+
+/* ============================================================
+   逆説のベール
+   普通のページの上に、クリックで薄いグレーの幕をかける。
+   幕の上に白い大きな一言だけ出す。ページを作り直さずに話を折る。
+
+     <div v-click class="u-veil">あれ？</div>
+
+   スライドの中ならどこに書いてもよい。全面を覆う。
+   ============================================================ */
+.u-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(70, 79, 92, 0.88);
+  backdrop-filter: blur(2px);
+  color: var(--c-bg);
+  font-family: var(--font-display);
+  font-size: 4.25rem;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+}
+
+/* 既定の 0.1 秒だと一瞬で切り替わって幕に見えない */
+.u-veil.slidev-vclick-target {
+  transition: opacity 0.5s ease;
+}
+
+/* ============================================================
+   方眼紙/* ============================================================
+   方眼紙
+   名刺の地と同じ。細い線と、5 マスごとの少し濃い線の 2 層。
+   白地の上に敷くと、何もない面に手触りが出る。
+   ============================================================ */
+.u-grid-paper {
+  background-image:
+    linear-gradient(var(--c-grid-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-grid-strong) 1px, transparent 1px),
+    linear-gradient(var(--c-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-grid) 1px, transparent 1px);
+  background-size: 140px 140px, 140px 140px, 28px 28px, 28px 28px;
+}
+
+/* ============================================================
+   ユーティリティ（クラス名で直接使える）
+   ============================================================ */
+/*
+ * 見出しではない文の大きさ。20 / 18 / 16 / 12 の 4 段階だけ。
+ * 18px が本文の基準なので、普通に書けば 18px になる。
+ * この 4 つ以外のサイズをスライドに書かない。
+ */
+.u-20 {
+  font-size: 1.25rem; /* 強調したい一文。太字にはしない */
+  line-height: 1.6;
+}
+
+.u-18 {
+  font-size: 1.125rem; /* 本文。基準なので普段は書かなくてよい */
+  line-height: 1.75;
+}
+
+.u-16 {
+  font-size: 1rem; /* 少し落とす文。リード文もこの大きさ */
+  line-height: 1.7;
+}
+
+.u-12 {
+  font-size: 0.75rem; /* 注釈・キャプション */
+  line-height: 1.6;
+}
+
+/*
+ * 数字を見せるときだけ使う。h1 と同じ 36px。
+ * 見出し以外でこの大きさを使ってよいのは数字だけ。
+ */
+.u-36 {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.u-muted {
+  color: var(--c-ink-2);
+}
+
+.u-faint {
+  color: var(--c-ink-3);
+}
+
+/* 内容の上に置く小さなラベル。12px と組んで使う */
+.u-label {
+  color: var(--c-accent-ink);
+  letter-spacing: 0.14em;
+}
+
+/* 英字のラベル。表紙のローマ字と同じ扱いで、細く広く。太字にしない */
+.u-label-en {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+}
+
+/* フォントをレイアウト全体に適用（テーマ既定より優先） */
+.slidev-layout,
+.slidev-layout h4,
+.slidev-layout h5,
+.slidev-layout h6 {
+  font-family: var(--font-sans);
+}
+
+/*
+ * 見出しだけ表示用フォントにする。
+ * Zen Maru Gothic は palt（文字詰め）を持っていないので、
+ * そのままだと字間が開きすぎる。letter-spacing で詰める。
+ */
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3 {
+  font-family: var(--font-display);
+  /* 見出しも開ける。詰めない */
+  letter-spacing: 0.02em;
+}
+
+/*
+ * SVG の中の文字に本文の字間を効かせない。
+ * SVG では長さが user unit として解釈されるので、
+ * 0.04em（= 0.72px）がグリッド 0.72 個ぶんの字間になり、文字が画面幅に散る。
+ * アーキテクチャ図のリンクラベルと Mermaid が該当する。
+ */
+.slidev-layout svg text {
+  letter-spacing: normal;
+}
+
+/* ============================================================
+   Mermaid — 中央寄せとはみ出し防止
+   （中身は Shadow DOM。色は setup/mermaid.ts で指定する）
+   ============================================================ */
+.slidev-layout .mermaid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}

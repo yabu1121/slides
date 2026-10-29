@@ -1,0 +1,11 @@
+    <svg viewBox="0 0 580 280" class="w-full block">
+      <circle cx="486" cy="62" r="44" fill="var(--c-accent-soft)" />
+      <path d="M0 272 C 120 258 200 232 288 198 C 372 166 452 138 580 116 L580 280 L0 280 Z" fill="var(--c-accent-soft)" />
+      <path d="M0 278 C 134 270 236 248 330 220 C 420 194 502 178 580 170 L580 280 L0 280 Z" fill="var(--c-accent)" />
+      <path d="M284 228 l16 -38 l16 38 Z" fill="var(--c-ink)" />
+      <path d="M334 214 l18 -44 l18 44 Z" fill="var(--c-ink)" />
+      <path d="M382 200 l15 -36 l15 36 Z" fill="var(--c-ink)" />
+      <rect x="486" y="140" width="5" height="42" rx="2.5" fill="var(--c-ink)" />
+      <circle cx="488" cy="136" r="7" fill="var(--c-ink)" />
+      <path d="M0 280 C 150 278 286 266 394 252 C 476 242 528 238 580 236 L580 280 L0 280 Z" fill="var(--c-ink)" />
+    </svg>

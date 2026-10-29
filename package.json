@@ -1,0 +1,26 @@
+{
+  "name": "slidev-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev --open",
+    "build": "node scripts/build-all.mjs",
+    "thumbs": "node scripts/thumbs.mjs",
+    "export": "slidev export",
+    "dev:site": "node scripts/serve-site.mjs"
+  },
+  "dependencies": {
+    "@slidev/cli": "53.0.0",
+    "@slidev/theme-default": "latest",
+    "echarts": "^6.1.0",
+    "postgres": "^3.4.9",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "@iconify-json/carbon": "^1.2.15",
+    "@iconify-json/logos": "^1.2.17",
+    "@iconify-json/ph": "^1.2.2",
+    "playwright-chromium": "latest"
+  }
+}

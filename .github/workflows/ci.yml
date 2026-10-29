@@ -1,0 +1,31 @@
+# スライドの確認。**ビルドはしない。**
+#
+# `npm run build` は dist を作り直す前に消すうえ、公開するデッキを
+# DB から読むので、CI でやると接続情報が要る。ここでやるのは
+# 「書いたスクリプトが構文として通るか」までにして、実際のビルドは
+# Vercel のデプロイに任せる。
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: スクリプトの構文
+        run: for f in scripts/*.mjs; do node --check "$f"; done
+
+      - name: slides.md に MEMO が残っていないか
+        run: |
+          if grep -rn "MEMO:" slides.md components setup global-top.vue 2>/dev/null; then
+            echo "::warning::MEMO: が残っています（まだ決まっていない所）"
+          fi
